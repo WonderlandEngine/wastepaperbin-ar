@@ -113,8 +113,6 @@ WL.registerComponent('confetti-particles', {
             const spins = this.spins[i];
             if(spins[3] != 1) obj.rotateObject(spins);
         }
-
-        updateScore(this.activeCount.toString());
     },
 
     swap: function(a, b) {
