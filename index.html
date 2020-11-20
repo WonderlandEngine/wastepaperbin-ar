@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>{{ settings.project.name }}</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {{ if settings.ar.framework == "8thwall" }}
+    <script src="//apps.8thwall.com/xrweb?appKey={{ settings.ar.8thwall.apiToken }}"></script>
+    {{ end }}
+    <style>
+    html {
+        height: 100%;
+    }
+    body {
+        height: 100%;
+        margin: 0px;
+        background-image: linear-gradient(black, #2b2b2b);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #f4f4f4;
+        text-align: center;
+    }
+    #ar-button {
+        position: fixed;
+        top: 40%;
+        margin-right: auto;
+        margin-left: auto;
+        width: 80%;
+        height: 0px;
+        padding: 10%;
+        display: block;
+        transition: height 0.5s ease 1s;
+    }
+    .visible {
+        height: 80px !important;
+    }
+    .warning {
+        position: fixed;
+        top: 40%;
+        margin-right: auto;
+        margin-left: auto;
+        width: 80%;
+        padding: 10%;
+        display: block;
+        font-size: 16pt;
+    }
+    #logo {
+        display: block;
+        position: fixed;
+        top: 10px;
+        margin-right: auto;
+        margin-left: auto;
+        width: 80%;
+        padding: 10%;
+    }
+    #info {
+        display: block;
+        position: fixed;
+        bottom: 10px;
+        margin-right: auto;
+        margin-left: auto;
+        width: 80%;
+        height: 64px;
+        padding: 10%;
+        font-size: 12pt;
+    }
+    </style>
+    <script type="module">
+        import { simd, threads } from "https://unpkg.com/wasm-feature-detect?module";
+
+        simd().then(simdSupported => {
+            if (simdSupported) {
+                console.log("WASM SIMD is supported");
+            } else {
+                console.warn("WASM SIMD is not supported");
+            }
+        });
+
+        threads().then(threadsSupported => {
+            const s = document.createElement('script');
+            document.body.appendChild(s);
+            const bundle = document.createElement('script');
+            document.body.appendChild(bundle);
+
+            /* We need to ensure the bundle is loaded after the runtime js always */
+            s.onload = function() {
+              bundle.src = "{{ settings.project.name }}-bundle.js?t={{timestamp}}";
+            }
+
+            if (threadsSupported) {
+              console.log("WASM Threads is supported");
+              s.src = 'WonderlandRuntime-threads.js';
+            } else {
+              console.warn("WASM Threads is not supported");
+              s.src = 'WonderlandRuntime.js';
+            }
+        });
+    </script>
+  </head>
+  <body>
+    <canvas id="canvas" style="width: 100%; height: 100%" tabindex="0"></canvas>
+    <img id="logo" src="WastepaperBin.png">
+    <div id="info">
+      WebAR powered by<br><br> <a href="https://wonderlandengine.com">
+        <img alt="Wonderland Engine Logo" width="50%" src="wle-logo-horizontal-reversed.png">
+      </a>
+    </div>
+    {{ if settings.ar.framework == 'webxr' }}<img id="ar-button" src="ar-button.svg" onclick="Module['webxr_request_session_func']('immersive-ar', ['local', 'hit-test'], ['local', 'hit-test'])">{{ end }}
+    <div id="status">Initialization...</div>
+    <div id="statusDescription"></div>
+    <script src="wonderland.js?t={{timestamp}}"></script>
+    <script>
+    WL.onSceneLoaded.push(() => {
+      if(typeof(WL.arSupported) === 'undefined') {
+        WL.onXRSupported.push((xr, supported) => {
+          if(xr == 'ar') {
+            if(supported) {
+              document.getElementById('ar-button').classList.add('visible');
+            } else {
+              let e = document.createElement('a')
+              e.innerHTML = "AR not supported.";
+              e.classList.add("warning");
+              document.body.appendChild(e);
+            }
+          }
+        });
+      } else if(WL.arSupported) {
+        document.getElementById('ar-button').classList.add('visible');
+      }
+    });
+    </script>
+    <script src="EmscriptenApplication.js"></script>
+    <script>
+        Module['font'] = "{{ fontUrl }}";
+        Module['scene'] = "{{ settings.project.name }}.bin";
+    </script>
+  </body>
+</html>
