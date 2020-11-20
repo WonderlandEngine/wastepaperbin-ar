@@ -501,7 +501,7 @@
                         "initialSpeed": 4.5,
                         "maxParticles": 128,
                         "particlesPerBurst": 64,
-                        "debug": true,
+                        "debug": false,
                         "particleScale": 0.029999999329447748
                     }
                 }
