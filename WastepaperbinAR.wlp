@@ -929,6 +929,14 @@
                 9.99990447780874e-7,
                 9.999899930335233e-7,
                 0.0
+            ],
+            "compressedTextureAtlasSize": [
+                4096,
+                4096
+            ],
+            "textureAtlasSize": [
+                4096,
+                4096
             ]
         },
         "scripting": {
