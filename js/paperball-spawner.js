@@ -13,6 +13,11 @@ WL.registerComponent('paperball-spawner', {
 
         this.paperBalls = [];
         this.nextIndex = 0;
+
+        if(this.debug) {
+            this.active = true;
+            this.object.getComponent('mesh').active = true;
+        }
     },
     onTouchDown: function(e) {
         /* We cannot use .axes directly, as the list is being reused
@@ -25,7 +30,7 @@ WL.registerComponent('paperball-spawner', {
     update: function(dt) {
         this.time = (this.time || 0) + dt;
 
-        if(this.debug && this.time > 1.0) {
+        if(this.debug && this.time > 0.5) {
             let dir = [0, 0, 0];
             this.object.getForward(dir);
             dir[1] += 1;
@@ -71,6 +76,7 @@ WL.registerComponent('paperball-spawner', {
         paper.physics.velocity.set(dir);
         /* Reset scored value which is set in 'score-trigger' component */
         paper.physics.scored = false;
+        paper.physics.active = true;
 
         /* New orientation for the next paper */
         this.object.rotateAxisAngleDegObject([1, 0, 0], Math.random()*180.0);

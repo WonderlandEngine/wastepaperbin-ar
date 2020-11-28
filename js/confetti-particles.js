@@ -116,6 +116,8 @@ WL.registerComponent('confetti-particles', {
     },
 
     swap: function(a, b) {
+        if(b >= this.maxParticles) return;
+        if(a >= this.maxParticles) return;
         const o = this.objects[a];
         const vel = this.velocities[a];
         const spins = this.spins[a];
