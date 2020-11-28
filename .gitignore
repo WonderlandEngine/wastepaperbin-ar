@@ -1,0 +1,5 @@
+# Wonderland Editor specifics
+deploy/
+
+# temp or backup file extensions
+*.blend1
