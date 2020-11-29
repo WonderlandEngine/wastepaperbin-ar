@@ -1,3 +1,4 @@
+var wastebinSpawner = null;
 var floorHeight = 0;
 
 /* Spawns wastebins at the same location as this mesh on click */
@@ -7,12 +8,13 @@ WL.registerComponent('wastebin-spawner', {
     spawnAnimation: {type: WL.Type.Animation},
     maxWastebins: {type: WL.Type.Int, default: 3},
     particles: {type: WL.Type.Object},
-    paperBallSpawner: {type: WL.Type.Object},
 }, {
     start: function() {
         WL.onXRSessionStart.push(this.xrSessionStart.bind(this));
         this.hitTest = this.object.getComponent('hit-test-location');
         this.wastebins = [];
+
+        wastebinSpawner = this;
     },
     update: function(dt) {
         if(!this.hitTest || !this.hitTest.visible) return;
@@ -64,8 +66,8 @@ WL.registerComponent('wastebin-spawner', {
 
         if(this.wastebins.length == this.maxWastebins) {
             updateScore("Swipe to\nthrow");
-            this.paperBallSpawner.getComponent('mesh').active = true;
-            this.paperBallSpawner.getComponent('paperball-spawner').active = true;
+            paperBallSpawner.getComponent('mesh').active = true;
+            paperBallSpawner.getComponent('paperball-spawner').active = true;
             /* Hide cursor */
             this.object.getComponent('mesh').active = false;
         }

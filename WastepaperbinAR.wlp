@@ -544,6 +544,42 @@
                 }
             ],
             "deleted": true
+        },
+        "60": {
+            "name": "PlayAgain",
+            "components": [
+                {
+                    "type": "text",
+                    "text": {
+                        "text": "Reset",
+                        "material": "61"
+                    },
+                    "active": true
+                },
+                {
+                    "type": "play-again-button",
+                    "active": false
+                }
+            ],
+            "parent": "18",
+            "transformation": [
+                0.699999988079071,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.699999988079071,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.699999988079071,
+                0.0,
+                0.18000000715255738,
+                -0.6000000238418579,
+                -1.0,
+                1.0
+            ]
         }
     },
     "meshes": {
@@ -677,7 +713,13 @@
                     0.4000000059604645,
                     0.30000001192092898
                 ],
-                "smoothness": 0.009999999776482582
+                "smoothness": 0.009999999776482582,
+                "color": [
+                    0.9999899864196777,
+                    1.0,
+                    0.9999960660934448,
+                    1.0
+                ]
             }
         },
         "20": {
@@ -842,6 +884,20 @@
                     0.0
                 ]
             }
+        },
+        "61": {
+            "name": "TextGreen",
+            "shader": "DistanceFieldVector Textured",
+            "DistanceFieldVector": {
+                "color": [
+                    0.14901961386203767,
+                    0.7882353067398071,
+                    0.5411764979362488,
+                    1.0
+                ],
+                "vectorTexture": "13",
+                "smoothness": 0.009999999776482582
+            }
         }
     },
     "shaders": {
@@ -947,7 +1003,8 @@
                 "js/ball-physics.js",
                 "js/score-display.js",
                 "js/score-trigger.js",
-                "js/confetti-particles.js"
+                "js/confetti-particles.js",
+                "js/play-again-button.js"
             ]
         }
     },

@@ -1,3 +1,4 @@
+var paperBallSpawner = null;
 /* Spawns wastebins at the same location as this mesh on click */
 WL.registerComponent('paperball-spawner', {
     paperballMesh: {type: WL.Type.Mesh},
@@ -13,11 +14,14 @@ WL.registerComponent('paperball-spawner', {
 
         this.paperBalls = [];
         this.nextIndex = 0;
+        this.throwCount = 0;
 
         if(this.debug) {
             this.active = true;
             this.object.getComponent('mesh').active = true;
         }
+
+        paperBallSpawner = this.object;
     },
     onTouchDown: function(e) {
         /* We cannot use .axes directly, as the list is being reused
@@ -50,7 +54,9 @@ WL.registerComponent('paperball-spawner', {
         /* In portrait mode, left-right is shorter */
         dir[0] *= 0.5;
 
-        const swipeLength = glMatrix.vec2.len(dir); /* [0 - 2] +/
+        const swipeLength = glMatrix.vec2.len(dir); /* [0 - 2] */
+        /* Avoid tapping spawning a ball */
+        if(swipeLength < 0.1) return;
 
         /* Rotate direction about rotation of the view object */
         glMatrix.vec3.transformQuat(dir, dir, this.object.parent.transformWorld);
@@ -92,6 +98,11 @@ WL.registerComponent('paperball-spawner', {
         /* Important only to update score display to show score
          * instead of the tutorial after first throw */
         updateScore(score.toString());
+
+        this.throwCount++;
+        if(this.throwCount == 3) {
+            resetButton.unhide();
+        }
     },
     spawnPaper: function() {
         const obj = WL.scene.addObject();
