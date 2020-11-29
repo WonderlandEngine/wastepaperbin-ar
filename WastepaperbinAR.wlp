@@ -2,14 +2,6 @@
     "objects": {
         "14": {
             "name": "Player",
-            "components": [
-                {
-                    "type": "wasd-controls",
-                    "wasd-controls": {
-                        "headObject": "17"
-                    }
-                }
-            ],
             "transformation": [
                 0.7160133123397827,
                 0.0,
