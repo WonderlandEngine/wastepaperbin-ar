@@ -1,5 +1,22 @@
 var paperBallSpawner = null;
-/* Spawns wastebins at the same location as this mesh on click */
+/**
+@brief Spawns paper balls at the component's object's location
+
+During WebXR immersive-ar sessions, we do not have access to
+touch or click events. The only way to retrieve touch locations
+is through the `select`, `selectstart` and `selectend` events.
+These events report location of the event in `[-1.0, 1.0]` on
+both axis.
+
+A swipe is determined by the difference in the position and time
+from `selectstart` to `selectend` event.
+The faster and the longer the swipe, the more force will be applied
+for the throw.
+
+After every throw, the main paper ball mesh in front of the camera
+will be hidden for a short duration and reappears with a new
+random rotation to hide the fact that it's the same mesh over and over.
+*/
 WL.registerComponent('paperball-spawner', {
     paperballMesh: {type: WL.Type.Mesh},
     paperballMaterial: {type: WL.Type.Material},
@@ -9,6 +26,8 @@ WL.registerComponent('paperball-spawner', {
     debug: {type: WL.Type.Bool, default: false},
 }, {
     start: function() {
+        /* We can only bind the selectstart/select end events
+         * when the session started */
         WL.onXRSessionStart.push(this.xrSessionStart.bind(this));
         this.start = new Float32Array(2);
 

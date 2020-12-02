@@ -1,3 +1,8 @@
+/**
+@brief (Unused) Moves a mesh back and forth
+
+Feel free to extend the game with a PR!
+*/
 WL.registerComponent('roomba', {
     speed: {type: WL.Type.Float, default: 1.0},
 }, {

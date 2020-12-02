@@ -1,4 +1,12 @@
 var resetButton = null;
+/**
+@brief Button to reset to placing a Wastebin
+
+For WebXR AR sessions, we get the touch events reported through `select`
+on the session. As they are reported in [-1.0, 1.0] range, we simply
+check if the touch in within a range in the bottom right corner of the
+screen.
+*/
 WL.registerComponent('play-again-button', {
 }, {
     start: function() {

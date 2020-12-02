@@ -1,7 +1,17 @@
 var wastebinSpawner = null;
 var floorHeight = 0;
 
-/* Spawns wastebins at the same location as this mesh on click */
+/**
+@brief Spawns wastebins at the same location as this mesh on click
+
+Clicks are detected via `select` events, as in immersive AR sessions,
+we don't have touch events.
+
+To spawn the wastebin at the location of the AR hit-test, this component
+is attached to the same object as the `hit-test-location` object.
+That results in `this.object` having the same location as the hit-test
+result.
+*/
 WL.registerComponent('wastebin-spawner', {
     binMesh: {type: WL.Type.Mesh},
     binMaterial: {type: WL.Type.Material},

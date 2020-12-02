@@ -1,4 +1,11 @@
+/* Global function used to update the score display */
 var updateScore = null;
+/**
+@brief Marks an object with text component as "score display"
+
+The center top text object that shows various helpful tutorial
+texts and the score.
+*/
 WL.registerComponent('score-display', {
 }, {
     init: function() {
@@ -9,6 +16,7 @@ WL.registerComponent('score-display', {
         }.bind(this);
 
         updateScore("");
+        /* Initial text to set after session started */
         WL.onXRSessionStart.push(function() {
             updateScore("Slowly scan\narea");
         });

@@ -1,5 +1,20 @@
 /**
-Adaptation of the mesh particles example for a confetti effect
+@brief Confetti Particle System
+
+Adaptation of the mesh particles example for a confetti effect.
+Manages up to `maxParticles` objects and updates their position
+with very basic physics with gravity, drag and floor collision.
+
+Particle objects are preallocated to avoid a hitch when spawning
+particles the first time. Later, particles are set visible and
+activated when spawned.
+
+To avoid having to update "sleeping" particles, the array of objects
+is sorted into "active" and "inactive" particles. The first
+`this.activeCount` particles are the ones being updated every frame.
+If a inactive particle object becomes active, it is swapped in the
+list with the first inactive particle and becomes active by incremementing
+the `activeCount`.
 */
 WL.registerComponent('confetti-particles', {
     /* Mesh for spawned particles */

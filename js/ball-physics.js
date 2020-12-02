@@ -1,5 +1,14 @@
 /**
-@brief Component that makes a grabable object throwable
+@brief Ball Physics
+
+Very rudimentary physics with gravity, pseudo-friction, bounciness
+and floor collisions.
+
+Computes velocity and position each frame until the velocity falls
+below a certain threshold, after which the component is deactivated.
+
+This component is also used to attach a "scored" property to track
+already scored paper balls. (See score-trigger and paperball-spawner).
 */
 WL.registerComponent('ball-physics', {
     bounciness: {type: WL.Type.Float, default: 0.5},

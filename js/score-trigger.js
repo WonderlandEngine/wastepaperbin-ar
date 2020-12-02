@@ -1,4 +1,13 @@
 var score = 0;
+/**
+@brief Score trigger
+
+Check overlap with paper balls to spawn confetti particles and
+increase the score.
+
+This component is automatically attached to newly spawned wastebins,
+see `wastebin-spawner`.
+*/
 WL.registerComponent('score-trigger', {
     particles: {type: WL.Type.Object}
 }, {
@@ -18,6 +27,8 @@ WL.registerComponent('score-trigger', {
                 ++score;
                 updateScore(score.toString());
 
+                /* We don't have collisions with the wastebin, simply
+                 * drop it straight down to avoid it flying through */
                 p.velocity.set([0, -1, 0]);
             }
         }
