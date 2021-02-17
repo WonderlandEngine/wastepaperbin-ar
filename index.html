@@ -64,6 +64,9 @@
         font-size: 12pt;
     }
     </style>
+    <script>
+        var Module = {'font': "{{ fontUrl }}", 'scene': "{{ settings.project.name }}.bin"};
+    </script>
     <script type="module">
         import { simd, threads } from "https://unpkg.com/wasm-feature-detect?module";
 
@@ -104,7 +107,7 @@
         <img alt="Wonderland Engine Logo" width="50%" src="wle-logo-horizontal-reversed.png">
       </a>
     </div>
-    {{ if settings.ar.framework == 'webxr' }}<img id="ar-button" src="ar-button.svg" onclick="Module['webxr_request_session_func']('immersive-ar', ['local', 'hit-test'], ['local', 'hit-test'])">{{ end }}
+    {{ if settings.ar.framework == 'webxr' }}<img id="ar-button" src="ar-button.svg" onclick="Module['webxr_request_session_func']('immersive-ar', ['local'], ['hit-test'])">{{ end }}
     <div id="status">Initialization...</div>
     <div id="statusDescription"></div>
     <script src="wonderland.js?t={{timestamp}}"></script>
