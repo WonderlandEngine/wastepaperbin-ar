@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <link rel="preload" href="{{ settings.project.name }}-bundle.js?t={{timestamp}}" as="script">
     <title>{{ settings.project.name }}</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="{{ settings.runtime.xrButtonColor }}">
     {{ if settings.ar.framework == "8thwall" }}
     <script src="//apps.8thwall.com/xrweb?appKey={{ settings.ar.8thwall.apiToken }}"></script>
     {{ end }}
@@ -19,20 +21,42 @@
         color: #f4f4f4;
         text-align: center;
     }
+    .xr-button-container {
+      display: block;
+      position: fixed;
+      width: 100%;
+      bottom: 30%;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+    }
     #ar-button {
-        position: fixed;
-        top: 40%;
-        margin-right: auto;
-        margin-left: auto;
-        width: 80%;
-        height: 0px;
-        padding: 10%;
-        display: block;
-        transition: height 0.5s ease 1s;
+      float: left;
+      width: 0px; /* Hidden until we know supported state */
+      padding-bottom: 25px;
+      display: block;
+      pointer-events: all;
+      cursor: pointer;
+      max-width: 300px;
     }
-    .visible {
-        height: 80px !important;
+
+    /* Once supported state is known, show the button */
+    [data-supported] {
+      width: 40% !important;
+      transition: 0.5s;
     }
+    [data-supported='0'] {
+      opacity: 0.25;
+    }
+
+    .xr-button-label {
+      fill: {{ settings.runtime.xrButtonColor }};
+    }
+
+    .xr-button-frame {
+      stroke: {{ settings.runtime.xrButtonColor }};
+    }
+
     .warning {
         position: fixed;
         top: 40%;
@@ -44,97 +68,117 @@
         font-size: 16pt;
     }
     #logo {
-        display: block;
-        position: fixed;
-        top: 10px;
-        margin-right: auto;
-        margin-left: auto;
-        width: 80%;
-        padding: 10%;
+      max-height: 100%;
+        max-width: 90%;
+        position: absolute;
+        top: 0;
+        bottom: 40%;
+        left: 0;
+        right: 0;
+        margin: auto;
     }
     #info {
         display: block;
-        position: fixed;
+        position: absolute;
         bottom: 10px;
         margin-right: auto;
         margin-left: auto;
         width: 80%;
-        height: 64px;
+        height: 10%;
         padding: 10%;
         font-size: 12pt;
     }
+    #container {
+        width: 100vmin;
+        position: fixed;
+        top: 0;
+        bottom: 0%;
+        left: 0;
+        right: 0;
+        margin: auto;
+    }
+
     </style>
     <script>
-        var Module = {'font': "{{ fontUrl }}", 'scene': "{{ settings.project.name }}.bin"};
+        var Module = {
+          webxr_framebuffer_scale_factor: {{ settings.vr.framebufferScaleFactor }}
+        };
     </script>
+    {{ if settings.runtime.pwa.enable }}
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="homescreen192.png">
+    <script>
+        if('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(reg => console.log('Service worker registered!', reg))
+                .catch(err => console.log('Unable to register service worker!', err));
+        }
+    </script>
+    {{ end }}
+    <script src="wonderland.min.js?t={{timestamp}}"></script>
     <script type="module">
-        import { simd, threads } from "https://unpkg.com/wasm-feature-detect?module";
+        function loadScript(scriptURL) {
+            return new Promise((res, rej) => {
+                const s = document.createElement('script');
+                s.onload = () => res(s);
+                s.onerror = rej;
+                s.src = scriptURL;
+                document.body.appendChild(s);
+            });
+        }
 
-        simd().then(simdSupported => {
-            if (simdSupported) {
-                console.log("WASM SIMD is supported");
-            } else {
-                console.warn("WASM SIMD is not supported");
+        async function init() {
+            try {
+                await WL.loadRuntime('{{ runtimeName }}');
+                WL.onXRSupported.push((type, supported) => {
+                    const button = document.getElementById(type + '-button');
+                    if(button) button.dataset.supported = supported;
+                });
+
+                WL.onSceneLoaded.push(() => {
+                    const el = document.getElementById('version');
+                    if(el) setTimeout(() => el.remove(), 2000);
+                })
+
+                const bundle = await loadScript("{{ settings.project.name }}-bundle.js?t={{timestamp}}");
+                bundle.id = 'bundle';
+
+                WL.scene.load('{{ settings.project.name }}.bin');
+            } catch(e) {
+              console.error(e);
             }
-        });
-
-        threads().then(threadsSupported => {
-            const s = document.createElement('script');
-            document.body.appendChild(s);
-            const bundle = document.createElement('script');
-            document.body.appendChild(bundle);
-
-            /* We need to ensure the bundle is loaded after the runtime js always */
-            s.onload = function() {
-              bundle.src = "{{ settings.project.name }}-bundle.js?t={{timestamp}}";
-            }
-
-            if (threadsSupported) {
-              console.log("WASM Threads is supported");
-              s.src = 'WonderlandRuntime-threads.js';
-            } else {
-              console.warn("WASM Threads is not supported");
-              s.src = 'WonderlandRuntime.js';
-            }
-        });
+        }
+        init();
     </script>
+    {{ if settings.runtime.googleAnalytics != '' }}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ settings.runtime.googleAnalytics }}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', '{{ settings.runtime.googleAnalytics }}');
+      {{ if settings.runtime.googleAnalyticsSecondary != '' }}gtag('config', '{{ settings.runtime.googleAnalyticsSecondary }}');{{ end }}
+    </script>
+    {{ end }}
   </head>
   <body>
-    <canvas id="canvas" style="width: 100%; height: 100%" tabindex="0"></canvas>
-    <img id="logo" src="WastepaperBin.png">
-    <div id="info">
-      WebAR powered by<br><br> <a href="https://wonderlandengine.com">
-        <img alt="Wonderland Engine Logo" width="50%" src="wle-logo-horizontal-reversed.png">
-      </a>
+    <div id="container">
+      <canvas id="canvas" style="width: 100%; height: 100%" tabindex="0"></canvas>
     </div>
-    {{ if settings.ar.framework == 'webxr' }}<img id="ar-button" src="ar-button.svg" onclick="Module['webxr_request_session_func']('immersive-ar', ['local'], ['hit-test'])">{{ end }}
-    <div id="status">Initialization...</div>
-    <div id="statusDescription"></div>
-    <script src="wonderland.js?t={{timestamp}}"></script>
-    <script>
-    WL.onSceneLoaded.push(() => {
-      if(typeof(WL.arSupported) === 'undefined') {
-        WL.onXRSupported.push((xr, supported) => {
-          if(xr == 'ar') {
-            if(supported) {
-              document.getElementById('ar-button').classList.add('visible');
-            } else {
-              let e = document.createElement('a')
-              e.innerHTML = "AR not supported.";
-              e.classList.add("warning");
-              document.body.appendChild(e);
-            }
-          }
-        });
-      } else if(WL.arSupported) {
-        document.getElementById('ar-button').classList.add('visible');
-      }
-    });
-    </script>
-    <script src="EmscriptenApplication.js"></script>
-    <script>
-        Module['font'] = "{{ fontUrl }}";
-        Module['scene'] = "{{ settings.project.name }}.bin";
-    </script>
+      <img id="logo" src="WastepaperBin.png">
+      <div id="info">
+        WebAR powered by<br><br> <a href="https://wonderlandengine.com">
+          <img alt="Wonderland Engine Logo" width="50%" src="wle-logo-horizontal-reversed.png">
+          </a>
+      </div>
+      <div class="xr-button-container">
+        {{ if settings.ar.framework == 'webxr' }}<a id="ar-button" onclick="Module['webxr_request_session_func']('immersive-ar', [{{ webxrRequiredFeatures }}], [{{ webxrOptionalFeatures }}])">
+        <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109.41 65"><path class="xr-button-label" d="M42.89,15.62a2,2,0,0,1,1.78,1.15L55.75,47A1.84,1.84,0,0,1,54,48.84H48.52a1.81,1.81,0,0,1-1.67-1.2l-1.49-4.19H33.77l-1.49,4.19a1.8,1.8,0,0,1-1.66,1.2H25.17A1.83,1.83,0,0,1,23.39,47L34.46,16.77a2,2,0,0,1,1.78-1.15Zm-6.31,20h6l-3-8.38Z"/><path class="xr-button-label" d="M70.61,40H68V47a1.84,1.84,0,0,1-1.78,1.83H61.31A1.83,1.83,0,0,1,59.54,47V17.46a1.83,1.83,0,0,1,1.77-1.84H73s13,.12,13,12.22c0,6-3.21,9-6.42,10.5L86.38,47a1.76,1.76,0,0,1-1.77,1.83h-5.8a1.91,1.91,0,0,1-1.43-.69ZM68,32.09h5c2.24,0,4.08-1.15,4.08-4.25s-1.84-4.36-4.08-4.36H68Z"/><rect class="xr-button-frame" x="3.5" y="3.5" width="102.41" height="58" rx="16.68" style="fill:none;stroke-linejoin:round;stroke-width:7px"/></svg>
+        </a>{{ end }}
+      </div>
   </body>
+      
+      
+      
 </html>
